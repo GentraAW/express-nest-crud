@@ -16,7 +16,7 @@ Proyek ini adalah aplikasi yang dibangun menggunakan **Express**, **NestJS**, da
 Untuk memulai dengan Express, jalankan perintah berikut:
 
 ```bash
-npm install express
+npm install express cors body-parser express-service
 npm install prisma --save-dev
 npm install @prisma/client
 npx prisma init
@@ -40,6 +40,7 @@ npm install @nestjs/config
 npm install class-validator class-transformer
 npm install @nestjs/mapped-types
 npm install date-fns-tz
+npm install moment-timezone
 
 # Generate resources
 nest generate resource customers (dir: /src)

@@ -12,3 +12,34 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Customers {
+  customer_id Int    @id @default(autoincrement())
+  name        String
+  phone       String @unique
+  address     String
+  transactions Transactions[]  // 1 customer bisa melakukan banyak transaksi
+}
+
+model Foods {
+  food_id   Int    @id @default(autoincrement())
+  food_name String
+  price     Int
+  stock     Int
+  transactions Transactions[]  // 1 makanan bisa ada di banyak transaksi
+}
+
+model Transactions {
+  transaction_id   Int      @id @default(autoincrement())
+  qty              Int
+  total_price      Int
+  transaction_date DateTime @default(now())
+  
+  // Foreign key dan relasi
+  customer_id Int
+  food_id     Int
+
+  // Definisi foreign key dengan referensi ke Customers dan Foods
+  customer   Customers @relation(fields: [customer_id], references: [customer_id])
+  food       Foods     @relation(fields: [food_id], references: [food_id])
+}
