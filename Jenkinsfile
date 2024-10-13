@@ -53,7 +53,7 @@ pipeline {
                         }  
                     }  
                     "run react": {  
-                        dir("front-end-service") {  
+                        dir("react-js") {  
                             sh "npm install"  
                             sh "npm run dev"  
                         }  
