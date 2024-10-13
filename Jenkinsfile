@@ -13,7 +13,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 echo 'Checking out the code from repository...'
-                git branch: 'main', url: 'https://github.com/Mochrks/fullstack-food-transaction'
+                git branch: 'main', url: 'https://github.com/GentraAW/express-nest-crud.git'
             }
         }
 
