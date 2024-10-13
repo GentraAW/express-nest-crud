@@ -29,13 +29,13 @@ pipeline {
             }  
         }  
 
-        stage('Database Schema Generation') {  
-            steps {  
-                dir('nest-service') {  
-                    bat 'npx prisma generate'  
-                }  
-            }  
-        }  
+        // stage('Database Schema Generation') {  
+        //     steps {  
+        //         dir('nest-service') {  
+        //             bat 'npx prisma generate'  
+        //         }  
+        //     }  
+        // }  
 
         stage('Dependency Installation') {  
             parallel {  
