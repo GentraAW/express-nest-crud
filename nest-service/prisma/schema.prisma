@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL", "postgresql://postgres:admin@localhost:5432/express_nest_db")
 }
 
 model Customers {
