@@ -30,6 +30,7 @@
     "class-validator": "^0.14.1",
     "date-fns-tz": "^3.2.0",
     "moment-timezone": "^0.5.46",
+    "nest-service": "file:",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },
