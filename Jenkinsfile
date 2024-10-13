@@ -2,114 +2,64 @@ pipeline {
     agent any  
 
     environment {  
-        ENV_EXPRESS = credentials('.env-express')  
-        ENV_NEST = credentials('.env-nest')  
-        VITE_API_EXPRESS = 'http://localhost:3000/'  
-        VITE_API_NESTJS = 'http://localhost:3001/'  
+        SECRET_FILE_EXPRESS = credentials('express-env')  
+        SECRET_FILE_NEST = credentials('nest-env')  
+    }  
+
+    tools {  
+        nodejs 'NodeJS'  
     }  
 
     stages {  
-        stage('Checkout Code') {  
+        stage("Create ExpressJS Service ENV") {  
             steps {  
-                echo 'Checking out the code from repository...'  
-                git branch: 'main', url: 'https://github.com/GentraAW/express-nest-crud.git'  
-            }  
-        }  
-
-        stage('Prepare .env Files') {  
-            steps {  
-                script {  
-                    writeFile file: 'express-service/.env', text: "${ENV_EXPRESS}"  
-                    echo 'Created .env file for Express'  
-
-                    writeFile file: 'nest-service/.env', text: "${ENV_NEST}"  
-                    echo 'Created .env file for NestJS'  
+                dir('express-service') {  
+                    script {  
+                        withCredentials([file(credentialsId: "express-env", variable: 'SECRET_FILE_EXPRESS')]) {  
+                            writeFile file: '.env', text: readFile(file: "${SECRET_FILE_EXPRESS}")  
+                        }  
+                    }  
                 }  
             }  
         }  
 
-        stage('Prisma Generate') {  
+        stage("Create NestJS Service ENV") {  
             steps {  
                 dir('nest-service') {  
-                    bat 'npx prisma generate'  
-                }  
-            }  
-        }  
-
-        stage('Install Dependencies') {  
-            parallel {  
-                stage('Install BE-Express') {  
-                    steps {  
-                        dir('express-service') {  
-                            bat 'npm ci'  
-                        }  
-                    }  
-                }  
-
-                stage('Install BE-NestJS') {  
-                    steps {  
-                        dir('nest-service') {  
-                            bat 'npm ci'  
-                        }  
-                    }  
-                }  
-
-                stage('Install FE-React') {  
-                    steps {  
-                        dir('react-js') {  
-                            bat 'npm ci'  
+                    script {  
+                        withCredentials([file(credentialsId: "nest-env", variable: 'SECRET_FILE_NEST')]) {  
+                            writeFile file: '.env', text: readFile(file: "${SECRET_FILE_NEST}")  
                         }  
                     }  
                 }  
             }  
         }  
 
-        stage('Start Applications') {  
-            parallel {  
-                stage('Start BE-Express') {  
-                    steps {  
-                        dir('express-service') {  
-                            bat 'npm run dev'  
+        stage("Build ExpressJS and NestJS Service") {  
+            steps {  
+                parallel(  
+                    "run express": {  
+                        dir("express-service") {  
+                            sh "npx prisma generate"  
+                            sh "npm install"  
+                            sh "npm run dev"  
                         }  
-                        script {  
-                            def envContent = readFile('express-service/.env')  
-                            echo "ExpressJS .env file content: ${envContent}"  
-                        }  
-                    }  
-                }  
-
-                stage('Start BE-NestJS') {  
-                    steps {  
-                        dir('nest-service') {  
-                            bat 'npm run start:dev'  
-                        }  
-                        script {  
-                            def envContent = readFile('nest-service/.env')  
-                            echo "NestJS .env file content: ${envContent}"  
+                    },  
+                    "run nest": {  
+                        dir("nest-service") {  
+                            sh "npx prisma generate"  
+                            sh "npm install"  
+                            sh "npm run start"  
                         }  
                     }  
-                }  
-
-                stage('Start FE-React') {  
-                    steps {  
-                        dir('react-js') {  
-                            bat 'npm run dev'  
+                    "run react": {  
+                        dir("front-end-service") {  
+                            sh "npm install"  
+                            sh "npm run dev"  
                         }  
                     }  
-                }  
+                )  
             }  
-        }  
-    }  
-
-    post {  
-        always {  
-            echo 'Pipeline execution finished. Cleaning up...'  
-        }  
-        success {  
-            echo 'Pipeline completed successfully.'  
-        }  
-        failure {  
-            echo 'Pipeline failed. Please check the logs for details.'  
         }  
     }  
 }
