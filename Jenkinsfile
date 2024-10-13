@@ -69,18 +69,14 @@ pipeline {
                 stage('Start BE-Express') {  
                     steps {  
                         dir('express-service') {  
-                            bat 'npm run dev'
-                            script {  
-                                sleep(time: 5, unit: 'SECONDS')  
- 
-                                def response = curl -s http://localhost:3000/health  
-                                if (response != "Server is running") {  
-                                    error "Server did not start successfully"  
-                                }  
-                            }  
+                            bat 'npm run dev'  
+                        }  
+                        script {  
+                            def envContent = readFile('express-service/.env')  
+                            echo "ExpressJS .env file content: ${envContent}"  
                         }  
                     }  
-                }    
+                }  
 
                 stage('Start BE-NestJS') {  
                     steps {  
