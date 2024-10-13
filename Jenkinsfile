@@ -10,11 +10,11 @@ pipeline {
         stage('Checkout Code') {  
             steps {  
                 echo 'Checking out the code from repository...'  
-                git branch: 'main', url: 'https://github.com/GentraAW/express-nest-crud'  
+                checkout scm  
             }  
         }  
 
-        stage('Prepare .env Files') {  
+        stage('Prepare Environment') {  
             steps {  
                 script {  
                     withCredentials([  
@@ -33,7 +33,7 @@ pipeline {
                 stage('Install BE-Express') {  
                     steps {  
                         dir('express-service') {  
-                            bat 'npm ci'  
+                            sh 'npm ci'  
                         }  
                     }  
                 }  
@@ -41,7 +41,7 @@ pipeline {
                 stage('Install BE-NestJS') {  
                     steps {  
                         dir('nest-service') {  
-                            bat 'npm ci'  
+                            sh 'npm ci'  
                         }  
                     }  
                 }  
@@ -49,38 +49,72 @@ pipeline {
                 stage('Install FE-React') {  
                     steps {  
                         dir('react-js') {  
-                            bat 'npm ci'  
+                            sh 'npm ci'  
                         }  
                     }  
                 }  
             }  
         }  
 
-        stage('Start Applications') {  
+        stage('Run Unit Tests') {  
             parallel {  
-                stage('Start BE-Express') {  
+                stage('Test BE-Express') {  
                     steps {  
                         dir('express-service') {  
-                            bat 'npm start'  
+                            sh 'npm test'  
                         }  
                     }  
                 }  
 
-                stage('Start BE-NestJS') {  
+                stage('Test BE-NestJS') {  
                     steps {  
                         dir('nest-service') {  
-                            bat 'npm run start:dev'  
+                            sh 'npm test'  
                         }  
                     }  
                 }  
 
-                stage('Start FE-React') {  
+                stage('Test FE-React') {  
                     steps {  
                         dir('react-js') {  
-                            bat 'npm run dev'  
+                            sh 'npm test'  
                         }  
                     }  
                 }  
+            }  
+        }  
+
+        stage('Build Applications') {  
+            parallel {  
+                stage('Build BE-Express') {  
+                    steps {  
+                        dir('express-service') {  
+                            sh 'npm run build'  
+                        }  
+                    }  
+                }  
+
+                stage('Build BE-NestJS') {  
+                    steps {  
+                        dir('nest-service') {  
+                            sh 'npm run build'  
+                        }  
+                    }  
+                }  
+
+                stage('Build FE-React') {  
+                    steps {  
+                        dir('react-js') {  
+                            sh 'npm run build'  
+                        }  
+                    }  
+                }  
+            }  
+        }  
+
+        stage('Deploy to Staging') {  
+            steps {  
+                echo 'Deploying to Staging environment...'  
             }  
         }  
     }  
